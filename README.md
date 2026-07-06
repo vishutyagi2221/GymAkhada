@@ -51,5 +51,4 @@ A modern, responsive, and robust Gym and Tournament Management web application b
 
 ## Author 👨‍🎓
 **ANSH**
-*Roll No: 2823361*
 *Developed as a Major Academic Project.*
