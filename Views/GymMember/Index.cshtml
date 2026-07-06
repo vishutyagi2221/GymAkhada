@@ -1,0 +1,79 @@
+@model IEnumerable<GymAkhada.Models.GymMember>
+
+@{
+    ViewData["Title"] = "Members";
+}
+
+<div class="container mt-4">
+    <section class="master-hero">
+        <div>
+            <span class="master-eyebrow">People</span>
+            <h1>Members</h1>
+            <p>Maintain AKHADA member records in one place.</p>
+        </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-warning fw-semibold">Add Member</a>
+        }
+    </section>
+
+    <section class="master-panel">
+        <div class="master-panel-header">
+            <div>
+                <h2>Saved Members</h2>
+                <p>@Model.Count() record(s) available</p>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="master-empty">
+                <h3>No members added yet</h3>
+                <p>Create the first person record with contact, category, and joining details.</p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-outline-warning">Create First Record</a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Mobile</th>
+                            <th>Aadhar Number</th>
+                            <th>Category</th>
+                            <th>Age</th>
+                            <th>Weight</th>
+                            <th>Joining Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                @foreach (var item in Model) {
+                        <tr>
+                            <td class="fw-semibold">@Html.DisplayFor(modelItem => item.FullName)</td>
+                            <td><span class="category-pill">@Html.DisplayFor(modelItem => item.MemberType)</span></td>
+                            <td>@Html.DisplayFor(modelItem => item.MobileNumber)</td>
+                            <td>@(string.IsNullOrEmpty(item.AadharNumber) ? "-" : item.AadharNumber)</td>
+                            <td>@(item.GymCategory?.Gym_categoryName ?? "Not set")</td>
+                            <td>@(item.Age?.ToString() ?? "-")</td>
+                            <td>@(item.WeightKg.HasValue ? $"{item.WeightKg.Value:0.##} kg" : "-")</td>
+                            <td>@item.JoiningDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="status-pill @(item.IsActive ? "active" : "inactive")">
+                                    @(item.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                        </tr>
+                }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

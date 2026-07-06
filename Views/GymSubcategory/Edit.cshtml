@@ -1,0 +1,70 @@
+@model GymAkhada.Models.GymSubcategory
+
+@{
+    ViewData["Title"] = "Edit Subcategory";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark text-light border-secondary">
+                <div class="card-header bg-black border-secondary">
+                    <h3 class="mb-0 text-warning">Edit Subcategory</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="GymSub_ID" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="Gym_ID" class="form-label">Parent Category</label>
+                            <select asp-for="Gym_ID" class="form-select bg-dark text-light border-secondary" asp-items="ViewBag.Gym_ID">
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="SubcategoryName" class="form-label">Subcategory Name (Optional)</label>
+                            <input asp-for="SubcategoryName" class="form-control bg-dark text-light border-secondary" placeholder="e.g. Under 14" />
+                            <span asp-validation-for="SubcategoryName" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GymSub_age" class="form-label">Age Limit (Optional)</label>
+                                <input asp-for="GymSub_age" class="form-control bg-dark text-light border-secondary" type="number" />
+                                <span asp-validation-for="GymSub_age" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="GymWeight" class="form-label">Weight Limit (kg) (Optional)</label>
+                                <input asp-for="GymWeight" class="form-control bg-dark text-light border-secondary" type="number" step="0.1" />
+                                <span asp-validation-for="GymWeight" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EntryFee" class="form-label">Entry Fee (₹)</label>
+                            <input asp-for="EntryFee" class="form-control bg-dark text-light border-secondary" type="number" step="0.01" />
+                            <span asp-validation-for="EntryFee" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ImportantDetails" class="form-label">Important Details / Rules</label>
+                            <textarea asp-for="ImportantDetails" class="form-control bg-dark text-light border-secondary" rows="3"></textarea>
+                            <span asp-validation-for="ImportantDetails" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning fw-bold">Save Changes</button>
+                            <a asp-action="Index" class="btn btn-outline-light">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

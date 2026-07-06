@@ -1,0 +1,104 @@
+@model IEnumerable<GymAkhada.Models.FeePayment>
+
+@{
+    ViewData["Title"] = "Fees & Payments";
+}
+
+<div class="container mt-4">
+    <section class="master-hero">
+        <div>
+            <span class="master-eyebrow">Finance</span>
+            <h1>AKHADA Fee Management</h1>
+            <p>Track all member payments, dues, and transaction histories.</p>
+        </div>
+        <a asp-action="Create" class="btn btn-warning fw-semibold">Add New Payment</a>
+    </section>
+
+    <section class="master-panel">
+        <div class="master-panel-header">
+            <div>
+                <h2>Payment History</h2>
+                <p>@Model.Count() total record(s)</p>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="master-empty">
+                <h3>No payments recorded yet</h3>
+                <p>Start recording member payments to see them listed here.</p>
+                <a asp-action="Create" class="btn btn-outline-warning">Add First Payment</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Member Name</th>
+                            <th>Amount (₹)</th>
+                            <th>Payment Date</th>
+                            <th>Valid Till</th>
+                            <th>Mode</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                @foreach (var item in Model) {
+                        <tr>
+                            <td class="fw-bold text-warning">
+                                @(item.GymMember?.FullName ?? "Unknown Member")
+                            </td>
+                            <td class="text-success fw-bold">₹@item.Amount.ToString("0.##")</td>
+                            <td>@item.PaymentDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (item.ValidTill < DateTime.Now.Date)
+                                {
+                                    <span class="badge bg-danger">@item.ValidTill.ToString("dd MMM yyyy") (Expired)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">@item.ValidTill.ToString("dd MMM yyyy")</span>
+                                }
+                            </td>
+                            <td><span class="category-pill">@item.PaymentMode</span></td>
+                            <td class="small text-secondary">@item.Remarks</td>
+                            <td>
+                                @{
+                                    var mobile = item.GymMember?.MobileNumber ?? "";
+                                    var name = item.GymMember?.FullName ?? "";
+                                    
+                                    var reminderMsg = Uri.EscapeDataString($"Hello {name}, this is a gentle reminder from AKHADA Gym that your fee is due. Please clear it at the earliest. Thank you!");
+                                    var receiptMsg = Uri.EscapeDataString($"Hello {name}, your fee payment of Rs.{item.Amount} has been received successfully. Valid till {item.ValidTill:dd-MMM-yyyy}. Thanks!");
+                                }
+
+                                @if (item.ValidTill < DateTime.Now.Date && item.GymMember != null)
+                                {
+                                    <a href="https://wa.me/91@(mobile)?text=@reminderMsg" target="_blank" class="btn btn-sm btn-outline-warning mb-1">
+                                        <i class="bi bi-whatsapp"></i> Reminder
+                                    </a>
+                                }
+                                else if (item.GymMember != null)
+                                {
+                                    <a href="https://wa.me/91@(mobile)?text=@receiptMsg" target="_blank" class="btn btn-sm btn-outline-success mb-1">
+                                        <i class="bi bi-whatsapp"></i> Receipt
+                                    </a>
+                                }
+                                
+                                <form asp-action="SendEmailReceipt" method="post" class="d-inline">
+                                    <input type="hidden" name="paymentId" value="@item.PaymentId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-info mb-1" @(string.IsNullOrEmpty(item.GymMember?.Email) ? "disabled title=\"No email address saved\"" : "")>
+                                        <i class="bi bi-envelope"></i> Email
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

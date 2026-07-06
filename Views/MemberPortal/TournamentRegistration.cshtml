@@ -1,0 +1,155 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Tournament Registration";
+    var tournament = ViewBag.Tournament as GymAkhada.Models.Tournament;
+    var categories = ViewBag.Categories as IEnumerable<GymAkhada.Models.GymCategory>;
+    var existingRegistrations = ViewBag.ExistingRegistrations as IEnumerable<GymAkhada.Models.TournamentRegistration>;
+}
+
+<div class="container mt-4 text-light">
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left"></i> Back to Portal</a>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <section class="master-hero compact mb-4">
+        <div>
+            <span class="master-eyebrow">Tournament</span>
+            <h1>@tournament!.Title</h1>
+            <p>@tournament.Date.ToString("dd MMM yyyy - hh:mm tt") | @tournament.Location</p>
+        </div>
+    </section>
+
+    <div class="row">
+        <!-- Available Categories -->
+        <div class="col-md-8">
+            <h3 class="text-warning mb-3">Available Categories</h3>
+            <p class="text-secondary small">You can register for a maximum of 2 subcategories (One specific category and one 'Open for All').</p>
+
+            <div class="accordion" id="categoryAccordion">
+                @if (categories != null && categories.Any())
+                {
+                    int i = 0;
+                    foreach (var cat in categories)
+                    {
+                        <div class="accordion-item bg-dark text-light border-secondary">
+                            <h2 class="accordion-header" id="heading@(i)">
+                                <button class="accordion-button @(i == 0 ? "" : "collapsed") bg-dark text-light border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(i)" aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="collapse@(i)">
+                                    <span class="fw-bold fs-5 text-warning">@cat.Gym_categoryName</span>
+                                </button>
+                            </h2>
+                            <div id="collapse@(i)" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading@(i)" data-bs-parent="#categoryAccordion">
+                                <div class="accordion-body">
+                                    @if (cat.Subcategories != null && cat.Subcategories.Any())
+                                    {
+                                        <div class="row g-3">
+                                            @foreach (var sub in cat.Subcategories)
+                                            {
+                                                bool isRegistered = existingRegistrations?.Any(r => r.GymSub_ID == sub.GymSub_ID) ?? false;
+                                                
+                                                <div class="col-md-6">
+                                                    <div class="card bg-black border-secondary h-100">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title text-light">@(string.IsNullOrEmpty(sub.SubcategoryName) ? "General" : sub.SubcategoryName)</h5>
+                                                            @if (sub.GymSub_age > 0 || sub.GymWeight > 0)
+                                                            {
+                                                                <p class="small text-secondary mb-1">
+                                                                    @(sub.GymSub_age > 0 ? $"Age: {sub.GymSub_age} | " : "")
+                                                                    @(sub.GymWeight > 0 ? $"Weight: {sub.GymWeight:0.##} kg" : "")
+                                                                </p>
+                                                            }
+                                                            <p class="mb-1 text-warning fw-bold">Fee: @(sub.EntryFee.HasValue ? $"₹{sub.EntryFee.Value:0.##}" : "Free")</p>
+                                                            @if (!string.IsNullOrEmpty(sub.ImportantDetails))
+                                                            {
+                                                                <p class="small text-muted mb-2"><i class="bi bi-info-circle"></i> @sub.ImportantDetails</p>
+                                                            }
+                                                            
+                                                            @if (isRegistered)
+                                                            {
+                                                                <button class="btn btn-success btn-sm w-100" disabled><i class="bi bi-check-circle"></i> Applied</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <form asp-action="SubmitRegistration" method="post">
+                                                                    <input type="hidden" name="tournamentId" value="@tournament.Id" />
+                                                                    <input type="hidden" name="gymSubId" value="@sub.GymSub_ID" />
+                                                                    <button type="submit" class="btn btn-outline-warning btn-sm w-100" onclick="return confirm('Are you sure you want to apply for this category? You can only select 2 categories in total.')">Apply Now</button>
+                                                                </form>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-secondary mb-0">No subcategories available here yet.</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        i++;
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- My Registrations -->
+        <div class="col-md-4">
+            <div class="master-panel h-100">
+                <h3 class="text-warning mb-3">My Applications</h3>
+                @if (existingRegistrations != null && existingRegistrations.Any())
+                {
+                    foreach (var reg in existingRegistrations)
+                    {
+                        var sub = reg.GymSubcategory;
+                        var catName = sub?.GymCategory?.Gym_categoryName ?? "Unknown";
+                        var subName = !string.IsNullOrEmpty(sub?.SubcategoryName) ? sub.SubcategoryName : "General";
+
+                        <div class="alert alert-dark border-secondary mb-3">
+                            <h6 class="fw-bold mb-1">@catName - @subName</h6>
+                            <div class="small text-secondary mb-2">Applied on: @reg.RegistrationDate.ToString("MMM dd, yyyy")</div>
+                            
+                            @if (reg.Status == "Approved")
+                            {
+                                <span class="badge bg-success w-100 p-2"><i class="bi bi-check-circle"></i> Approved</span>
+                            }
+                            else if (reg.Status == "Denied")
+                            {
+                                <span class="badge bg-danger w-100 p-2 mb-2"><i class="bi bi-x-circle"></i> Denied</span>
+                                @if (!string.IsNullOrEmpty(reg.RejectionReason))
+                                {
+                                    <div class="small text-danger mt-1">Reason: @reg.RejectionReason</div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark w-100 p-2"><i class="bi bi-hourglass-split"></i> Pending Admin Approval</span>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-secondary">You haven't applied for any categories in this tournament yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,116 @@
+@model GymAkhada.Models.GymMember
+
+@{
+    ViewData["Title"] = "Create Member";
+}
+
+<div class="container mt-4 text-light">
+    <section class="master-hero compact">
+        <div>
+            <span class="master-eyebrow">Members</span>
+            <h1>Add Member</h1>
+            <p>Create a person record with contact, category, and joining details.</p>
+        </div>
+    </section>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <form asp-action="Create" class="master-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label"></label>
+                        <input asp-for="FullName" class="form-control form-control-lg" placeholder="e.g. Rahul Sharma" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MobileNumber" class="form-label"></label>
+                        <input asp-for="MobileNumber" class="form-control form-control-lg" placeholder="e.g. 9876543210" />
+                        <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Gender" class="form-label"></label>
+                        <select asp-for="Gender" class="form-select form-select-lg" asp-items="ViewBag.Genders">
+                            <option value="">Select gender</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Gym_ID" class="form-label"></label>
+                        <select asp-for="Gym_ID" class="form-select form-select-lg" asp-items="ViewBag.Gym_ID">
+                            <option value="">No category</option>
+                        </select>
+                        <span asp-validation-for="Gym_ID" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Age" class="form-label"></label>
+                        <input asp-for="Age" class="form-control form-control-lg" type="number" min="1" placeholder="e.g. 21" />
+                        <span asp-validation-for="Age" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="WeightKg" class="form-label"></label>
+                        <input asp-for="WeightKg" class="form-control form-control-lg" type="number" min="1" step="0.01" placeholder="e.g. 68" />
+                        <span asp-validation-for="WeightKg" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="JoiningDate" class="form-label"></label>
+                        <input asp-for="JoiningDate" class="form-control form-control-lg" type="date" />
+                        <span asp-validation-for="JoiningDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="AadharNumber" class="form-label"></label>
+                        <input asp-for="AadharNumber" class="form-control form-control-lg" placeholder="12-digit Aadhar Number" />
+                        <span asp-validation-for="AadharNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Address" class="form-label"></label>
+                        <input asp-for="Address" class="form-control form-control-lg" placeholder="Address or locality" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Remarks" class="form-label"></label>
+                        <input asp-for="Remarks" class="form-control form-control-lg" placeholder="Notes, batch, or fee detail" />
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch master-switch">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <input type="submit" value="Save Record" class="btn btn-warning fw-semibold" />
+                    <a asp-action="Index" class="btn btn-outline-light">Back to List</a>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-4">
+            <aside class="master-help">
+                <h2>Record Summary</h2>
+                <p>Member records store the core contact and AKHADA details.</p>
+                <ul>
+                    <li>Name, mobile number, age, and weight are important fields.</li>
+                    <li>Category is optional and can be linked later.</li>
+                    <li>Active status helps separate current and old records.</li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

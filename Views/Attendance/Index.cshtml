@@ -1,0 +1,112 @@
+@model IEnumerable<GymAkhada.Models.GymMember>
+
+@{
+    ViewData["Title"] = "Daily Attendance";
+}
+
+<div class="container mt-4">
+    <section class="master-hero">
+        <div>
+            <span class="master-eyebrow">Tracking</span>
+            <h1>Daily Attendance</h1>
+            <p>Mark presence for all gym members for today: <strong class="text-warning">@ViewBag.Today.ToString("dd MMM yyyy")</strong></p>
+        </div>
+    </section>
+
+    <div class="master-panel">
+        <div class="master-panel-header">
+            <div>
+                <h2>Date: @ViewBag.Today.ToString("dd MMM yyyy")</h2>
+                <p>Showing records for all members.</p>
+            </div>
+            <div>
+                <form method="get" class="d-flex gap-2">
+                    <input type="date" name="date" class="form-control bg-dark text-light border-secondary" value="@ViewBag.Today.ToString("yyyy-MM-dd")" max="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <button type="submit" class="btn btn-warning">View</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="table-responsive mt-3">
+            <table class="table table-dark table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Member Name</th>
+                        <th>Member Type</th>
+                        <th>Weight</th>
+                        <th>Status (Today)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var member in Model)
+                    {
+                        var dict = (Dictionary<int, GymAkhada.Models.Attendance>)ViewBag.TodaysAttendance;
+                        bool hasRecord = dict.ContainsKey(member.GymMember_ID);
+                        bool isPresent = hasRecord && dict[member.GymMember_ID].IsPresent;
+                        bool isApproved = hasRecord && dict[member.GymMember_ID].IsApproved;
+
+                        <tr>
+                            <td class="fw-bold text-warning">@member.FullName</td>
+                            <td><span class="category-pill">@member.MemberType</span></td>
+                            <td>@member.WeightKg kg</td>
+                            <td>
+                                @if (hasRecord)
+                                {
+                                    if (isPresent && isApproved)
+                                    {
+                                        <span class="badge bg-success">Present</span>
+                                    }
+                                    else if (isPresent && !isApproved)
+                                    {
+                                        <span class="badge bg-warning text-dark">Pending Approval</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Absent</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Not Marked</span>
+                                }
+                            </td>
+                            <td>
+                                @if (hasRecord && isPresent && !isApproved)
+                                {
+                                    <form asp-action="Mark" method="post" class="d-inline">
+                                        <input type="hidden" name="memberId" value="@member.GymMember_ID" />
+                                        <input type="hidden" name="isPresent" value="true" />
+                                        <input type="hidden" name="date" value="@ViewBag.Today.ToString("yyyy-MM-dd")" />
+                                        <button type="submit" class="btn btn-sm btn-primary">Approve</button>
+                                    </form>
+                                    <form asp-action="Mark" method="post" class="d-inline ms-2">
+                                        <input type="hidden" name="memberId" value="@member.GymMember_ID" />
+                                        <input type="hidden" name="isPresent" value="false" />
+                                        <input type="hidden" name="date" value="@ViewBag.Today.ToString("yyyy-MM-dd")" />
+                                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Mark" method="post" class="d-inline">
+                                        <input type="hidden" name="memberId" value="@member.GymMember_ID" />
+                                        <input type="hidden" name="isPresent" value="true" />
+                                        <input type="hidden" name="date" value="@ViewBag.Today.ToString("yyyy-MM-dd")" />
+                                        <button type="submit" class="btn btn-sm btn-success @(hasRecord && isPresent && isApproved ? "disabled" : "")">Present</button>
+                                    </form>
+                                    <form asp-action="Mark" method="post" class="d-inline ms-2">
+                                        <input type="hidden" name="memberId" value="@member.GymMember_ID" />
+                                        <input type="hidden" name="isPresent" value="false" />
+                                        <input type="hidden" name="date" value="@ViewBag.Today.ToString("yyyy-MM-dd")" />
+                                        <button type="submit" class="btn btn-sm btn-danger @(hasRecord && (!isPresent || (isPresent && !isApproved)) ? "disabled" : "")">Absent</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

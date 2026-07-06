@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Admin Dashboard - AKHADA";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Main Stats -->
+        <div class="col-md-3 mb-4">
+            <div class="master-panel text-center border-warning h-100 d-flex flex-column justify-content-center">
+                <h4 class="text-secondary">Total Members</h4>
+                <h1 class="display-4 text-light fw-bold">@ViewBag.TotalMembers</h1>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="master-panel text-center border-success h-100 d-flex flex-column justify-content-center">
+                <h4 class="text-secondary">Total Revenue (6 Months)</h4>
+                <h1 class="display-4 text-success fw-bold">₹@ViewBag.TotalRevenue</h1>
+            </div>
+        </div>
+        
+        <!-- Alerts & Notifications -->
+        <div class="col-md-6 mb-4">
+            <div class="master-panel border-danger h-100">
+                <h4 class="text-danger mb-3"><i class="bi bi-bell-fill"></i> Expiry Alerts (Next 7 Days)</h4>
+                <div class="list-group list-group-flush bg-transparent" style="max-height: 150px; overflow-y: auto;">
+                    @if (ViewBag.ExpiryAlerts != null)
+                    {
+                        foreach (var alert in ViewBag.ExpiryAlerts)
+                        {
+                            var daysLeft = (alert.ValidTill - DateTime.Now).Days;
+                            var colorClass = daysLeft < 0 ? "text-danger" : "text-warning";
+                            var msg = daysLeft < 0 ? "Expired" : $"Expires in {daysLeft} days";
+                            <div class="list-group-item bg-dark border-secondary">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1 text-light">@alert.GymMember.FullName</h6>
+                                    <small class="@colorClass fw-bold">@msg</small>
+                                </div>
+                                <small class="text-secondary">Valid Till: @alert.ValidTill.ToString("dd MMM yyyy")</small>
+                            </div>
+                        }
+                    }
+                    @if (ViewBag.ExpiryAlerts == null || ViewBag.ExpiryAlerts.Count == 0)
+                    {
+                        <div class="text-secondary text-center mt-4">No upcoming expirations.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="master-panel h-100">
+                <h4 class="text-warning mb-3">Members by Category</h4>
+                <div style="position: relative; height:300px; width:100%">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="master-panel h-100">
+                <h4 class="text-warning mb-3">Revenue (Last 6 Months)</h4>
+                <div style="position: relative; height:300px; width:100%">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Category Pie Chart
+        const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+        const catLabels = @Html.Raw(Json.Serialize(ViewBag.CategoryLabels ?? new List<string>()));
+        const catCounts = @Html.Raw(Json.Serialize(ViewBag.CategoryCounts ?? new List<int>()));
+        
+        new Chart(ctxCategory, {
+            type: 'doughnut',
+            data: {
+                labels: catLabels,
+                datasets: [{
+                    data: catCounts,
+                    backgroundColor: ['#ffc107', '#198754', '#dc3545', '#0dcaf0', '#6f42c1'],
+                    borderColor: '#1a1a1a',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#adb5bd' } }
+                }
+            }
+        });
+
+        // Revenue Bar Chart
+        const ctxRev = document.getElementById('revenueChart').getContext('2d');
+        const revLabels = @Html.Raw(Json.Serialize(ViewBag.MonthLabels ?? new List<string>()));
+        const revAmounts = @Html.Raw(Json.Serialize(ViewBag.RevenueAmounts ?? new List<decimal>()));
+        
+        new Chart(ctxRev, {
+            type: 'bar',
+            data: {
+                labels: revLabels,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: revAmounts,
+                    backgroundColor: '#198754',
+                    borderColor: '#146c43',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#333' }, ticks: { color: '#adb5bd' } },
+                    x: { grid: { color: '#333' }, ticks: { color: '#adb5bd' } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+}

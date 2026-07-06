@@ -1,0 +1,81 @@
+@model GymAkhada.Models.GymSubcategory
+
+@{
+    ViewData["Title"] = "Create Subcategory";
+    var hasCategories = ViewBag.HasCategories as bool? ?? false;
+}
+
+<div class="container mt-4 text-light">
+    <section class="master-hero compact">
+        <div>
+            <span class="master-eyebrow">Subcategory Master</span>
+            <h1>Add AKHADA Subcategory</h1>
+            <p>Link age and weight criteria with a saved AKHADA category.</p>
+        </div>
+    </section>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <form asp-action="Create" class="master-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                @if (!hasCategories)
+                {
+                    <div class="alert alert-warning border-0">
+                        Add a AKHADA category first, then create subcategory criteria.
+                    </div>
+                }
+
+                <div class="form-group mb-3">
+                    <label asp-for="Gym_ID" class="form-label"></label>
+                    <select asp-for="Gym_ID" class="form-select form-select-lg" asp-items="ViewBag.Gym_ID" disabled="@(!hasCategories)">
+                        <option value="">Select category</option>
+                    </select>
+                    <span asp-validation-for="Gym_ID" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="SubcategoryName" class="form-label"></label>
+                    <input asp-for="SubcategoryName" class="form-control form-control-lg" placeholder="e.g. 50-60 KGs or Under 17" required />
+                    <span asp-validation-for="SubcategoryName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="EntryFee" class="form-label"></label>
+                    <input asp-for="EntryFee" class="form-control form-control-lg" type="number" min="0" step="0.01" placeholder="e.g. 500" />
+                    <span asp-validation-for="EntryFee" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ImportantDetails" class="form-label"></label>
+                    <textarea asp-for="ImportantDetails" class="form-control form-control-lg" rows="2" placeholder="e.g. Weigh-in at 8 AM"></textarea>
+                    <span asp-validation-for="ImportantDetails" class="text-danger"></span>
+                </div>
+
+                <div class="form-actions">
+                    <input type="submit" value="Save Subcategory" class="btn btn-warning fw-semibold" disabled="@(!hasCategories)" />
+                    <a asp-action="Index" class="btn btn-outline-light">Back to List</a>
+                    @if (!hasCategories)
+                    {
+                        <a asp-controller="GymCategory" asp-action="Create" class="btn btn-outline-warning">Add Category</a>
+                    }
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-5">
+            <aside class="master-help">
+                <h2>Subcategory Details</h2>
+                <p>Subcategories are detail rules under a category master.</p>
+                <ul>
+                    <li>Category selection is required.</li>
+                    <li>Age criteria stores the target age.</li>
+                    <li>Weight stores the matching weight criteria in kilograms.</li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

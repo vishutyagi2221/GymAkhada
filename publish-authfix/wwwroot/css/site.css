@@ -1,0 +1,214 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  background: #202428;
+}
+
+.master-hero {
+  align-items: center;
+  background: linear-gradient(135deg, #16191d 0%, #252b31 62%, #30351f 100%);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 28px;
+}
+
+.master-hero.compact {
+  margin-bottom: 20px;
+}
+
+.master-eyebrow {
+  color: #ffc107;
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.master-hero h1 {
+  color: #fff;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.master-hero p,
+.master-panel-header p,
+.master-empty p,
+.master-help p,
+.master-help li,
+.form-hint {
+  color: #b9c0c7;
+}
+
+.master-hero p {
+  margin: 10px 0 0;
+  max-width: 620px;
+}
+
+.master-panel,
+.master-form,
+.master-help {
+  background: #171a1f;
+  border: 1px solid #343a40;
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.master-panel {
+  overflow: hidden;
+}
+
+.master-panel-header {
+  align-items: center;
+  border-bottom: 1px solid #343a40;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 24px;
+}
+
+.master-panel-header h2,
+.master-help h2 {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.master-panel-header p {
+  margin: 4px 0 0;
+}
+
+.master-empty {
+  padding: 34px 24px;
+  text-align: center;
+}
+
+.master-empty h3 {
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.category-pill {
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 999px;
+  color: #ffd761;
+  display: inline-block;
+  font-weight: 700;
+  padding: 5px 12px;
+}
+
+.master-form,
+.master-help {
+  padding: 24px;
+}
+
+.master-form .form-label {
+  color: #f8f9fa;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.master-form .form-control,
+.master-form .form-select {
+  background: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+}
+
+.form-hint {
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+.form-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.master-help ul {
+  margin: 14px 0 0;
+  padding-left: 20px;
+}
+
+.master-help li + li {
+  margin-top: 8px;
+}
+
+.status-pill {
+  border-radius: 999px;
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 5px 11px;
+}
+
+.status-pill.active {
+  background: rgba(25, 135, 84, 0.18);
+  border: 1px solid rgba(25, 135, 84, 0.36);
+  color: #69d39b;
+}
+
+.status-pill.inactive {
+  background: rgba(108, 117, 125, 0.18);
+  border: 1px solid rgba(108, 117, 125, 0.36);
+  color: #c7ccd1;
+}
+
+.master-switch {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  min-height: 42px;
+}
+
+.master-switch .form-check-input {
+  height: 1.25rem;
+  margin-left: 0;
+  width: 2.4rem;
+}
+
+.master-switch .form-check-label {
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .master-hero,
+  .master-panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .master-hero {
+    padding: 22px;
+  }
+}

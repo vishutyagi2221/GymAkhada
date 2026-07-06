@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minor Project Report - Gym Akhada</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #000;
+        }
+        .page {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 20mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+        @media print {
+            body { background: white; margin: 0; }
+            .page { margin: 0; padding: 20mm; box-shadow: none; page-break-after: always; }
+        }
+        .text-center { text-align: center; }
+        .title { font-size: 28pt; font-weight: bold; margin-top: 100px; color: #111; }
+        .subtitle { font-size: 18pt; margin-top: 20px; }
+        .details { margin-top: 150px; font-size: 14pt; }
+        h1 { font-size: 20pt; border-bottom: 2px solid #000; padding-bottom: 5px; margin-top: 40px; }
+        h2 { font-size: 16pt; margin-top: 30px; }
+        p { font-size: 12pt; text-align: justify; }
+    </style>
+</head>
+<body>
+
+    <div class="page text-center">
+        <div class="title">MINOR PROJECT REPORT</div>
+        <div class="subtitle">ON</div>
+        <div class="title" style="margin-top: 20px; font-size: 24pt;">GYM AKHADA: CORE SYSTEM ARCHITECTURE</div>
+        <div class="details">
+            <p><strong>Submitted By:</strong></p>
+            <p><strong>Name:</strong> ANSH</p>
+            <p><strong>Roll No:</strong> 2823361</p>
+        </div>
+    </div>
+
+    <div class="page">
+        <h1 style="margin-top: 0;">1. Introduction</h1>
+        <p>This minor report documents the initial phase of the "Gym Akhada" system development. The focus during this phase was strictly on establishing a solid foundation, which included database design, server configuration, and custom user authentication without relying on pre-built ASP.NET Identity scaffolding.</p>
+
+        <h2>2. Objectives Achieved</h2>
+        <ul>
+            <li>Design and implementation of the SQL Server Database using Entity Framework Core Code-First Migrations.</li>
+            <li>Creation of the core `AppUser` and `GymMember` entity relationship models.</li>
+            <li>Implementation of a custom Cookie-Authentication controller.</li>
+            <li>Development of a responsive, Dark-Themed UI baseline using Bootstrap 5.</li>
+        </ul>
+
+        <h2>3. Server Handling & Backend Logic</h2>
+        <p>The backend was architected using C# and ASP.NET Core 8.0. A primary challenge was ensuring that the mapping between a Login ID (`AppUser`) and a Physical Member (`GymMember`) was mathematically secure. This was achieved using Nullable Foreign Keys, allowing Admin accounts to exist without a physical gym profile, while forcing all regular users to have mapped profiles.</p>
+        <p>Password security was handled using a custom SHA-256 hashing algorithm implemented directly in the `AccountController`. This ensured that plain-text passwords never touch the database.</p>
+
+        <h2>4. Conclusion of Minor Phase</h2>
+        <p>The completion of the core authentication, routing, and database modules provided a highly stable platform. This architectural stability was crucial for the seamless integration of advanced APIs (Twilio/SMTP) and complex tournament business logic in the major phase.</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,271 @@
+@model IEnumerable<GymAkhada.Models.TournamentRegistration>
+
+@{
+    ViewData["Title"] = "Tournament Registrations";
+    Layout = "_Layout";
+    var tournament = ViewBag.Tournament as GymAkhada.Models.Tournament;
+    
+    // Group registrations by Category > Subcategory
+    var groupedRegistrations = Model
+        .GroupBy(r => r.GymSubcategory?.GymCategory?.Gym_categoryName ?? "Uncategorized")
+        .ToDictionary(
+            g => g.Key,
+            g => g.GroupBy(r => string.IsNullOrEmpty(r.GymSubcategory?.SubcategoryName) ? "General" : r.GymSubcategory.SubcategoryName).ToList()
+        );
+}
+
+<style>
+    @@media print {
+        body { background: white !important; color: black !important; }
+        .bg-dark, .bg-black, .bg-secondary { background: white !important; color: black !important; border: 1px solid #ccc !important; }
+        .text-light, .text-warning { color: black !important; }
+        .table { color: black !important; border-color: black !important; }
+        .no-print, .btn, form, .modal { display: none !important; }
+        .accordion-button::after { display: none !important; }
+        .accordion-collapse { display: block !important; height: auto !important; }
+        
+        /* Watermark */
+        body::after {
+            content: "AKHADA";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 150px;
+            color: rgba(0, 0, 0, 0.08);
+            z-index: -1;
+            pointer-events: none;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <a asp-action="Index" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left"></i> Back to Tournaments</a>
+        <button onclick="exportToPDF()" class="btn btn-danger fw-bold"><i class="bi bi-file-earmark-pdf-fill"></i> Export PDF (Text)</button>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show no-print">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📋 Registrations: <span class="text-warning print-text-black">@tournament?.Title</span></h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-dark text-center text-muted">No registrations found.</div>
+    }
+    else
+    {
+        <div class="accordion" id="registrationsAccordion">
+            @{int catIndex = 0;}
+            @foreach (var categoryGroup in groupedRegistrations)
+            {
+                <div class="accordion-item bg-dark border-secondary mb-3">
+                    <h2 class="accordion-header" id="heading-@catIndex">
+                        <button class="accordion-button @(catIndex == 0 ? "" : "collapsed") bg-black text-warning fw-bold fs-5 shadow-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@catIndex">
+                            @categoryGroup.Key (@categoryGroup.Value.SelectMany(x => x).Count() Players)
+                        </button>
+                    </h2>
+                    <div id="collapse-@catIndex" class="accordion-collapse collapse @(catIndex == 0 ? "show" : "")" data-bs-parent="#registrationsAccordion">
+                        <div class="accordion-body p-0">
+                            
+                            @foreach (IGrouping<string, TournamentRegistration> subGroup in categoryGroup.Value)
+                            {
+                                <div class="bg-secondary text-light px-3 py-2 fw-bold d-flex justify-content-between">
+                                    <span>Class: @subGroup.Key</span>
+                                    <span class="badge bg-dark">@subGroup.Count()</span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover mb-0 align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Member</th>
+                                                <th>Stats</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in subGroup)
+                                            {
+                                                <tr>
+                                                    <td class="fw-bold">
+                                                        @item.GymMember?.FullName <br>
+                                                        <small class="text-info">@item.GymMember?.MobileNumber</small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-light text-dark">Age: @(item.GymMember?.Age?.ToString() ?? "N/A")</span>
+                                                        <span class="badge bg-light text-dark">Wgt: @(item.GymMember?.WeightKg?.ToString() ?? "N/A") kg</span>
+                                                        <button type="button" class="btn btn-link btn-sm text-warning p-0 ms-2" data-bs-toggle="modal" data-bs-target="#infoModal-@item.RegistrationId">
+                                                            View Info
+                                                        </button>
+                                                    </td>
+                                                    <td>
+                                                        @if (item.Status == "Approved")
+                                                        {
+                                                            <span class="badge bg-success">Approved</span>
+                                                        }
+                                                        else if (item.Status == "Denied")
+                                                        {
+                                                            <span class="badge bg-danger">Denied</span>
+                                                            @if (!string.IsNullOrEmpty(item.RejectionReason))
+                                                            {
+                                                                <div class="small text-muted mt-1" title="@item.RejectionReason">See Reason</div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-warning text-dark">Pending</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (item.Status == "Pending")
+                                                        {
+                                                            <form asp-action="ApproveRegistration" method="post" style="display:inline;">
+                                                                <input type="hidden" name="registrationId" value="@item.RegistrationId" />
+                                                                <button type="submit" class="btn btn-sm btn-success me-1">Approve</button>
+                                                            </form>
+                                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#denyModal-@item.RegistrationId">
+                                                                Deny
+                                                            </button>
+                                                        }
+                                                    </td>
+                                                </tr>
+
+                                                <!-- Info Modal -->
+                                                <div class="modal fade" id="infoModal-@item.RegistrationId" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content bg-dark text-light border-secondary">
+                                                            <div class="modal-header border-secondary">
+                                                                <h5 class="modal-title text-warning">Member Details</h5>
+                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <table class="table table-dark table-borderless table-sm">
+                                                                    <tr><td class="text-secondary w-50">Name</td><td>@item.GymMember?.FullName</td></tr>
+                                                                    <tr><td class="text-secondary">Mobile</td><td>@item.GymMember?.MobileNumber</td></tr>
+                                                                    <tr><td class="text-secondary">Email</td><td>@(item.GymMember?.Email ?? "N/A")</td></tr>
+                                                                    <tr><td class="text-secondary">Age</td><td>@item.GymMember?.Age</td></tr>
+                                                                    <tr><td class="text-secondary">Weight</td><td>@item.GymMember?.WeightKg kg</td></tr>
+                                                                    <tr><td class="text-secondary">Aadhar</td><td>@(item.GymMember?.AadharNumber ?? "N/A")</td></tr>
+                                                                    <tr><td class="text-secondary">Gender</td><td>@(item.GymMember?.Gender ?? "N/A")</td></tr>
+                                                                    <tr><td class="text-secondary">Address</td><td>@(item.GymMember?.Address ?? "N/A")</td></tr>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Deny Modal -->
+                                                <div class="modal fade" id="denyModal-@item.RegistrationId" tabindex="-1">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content bg-dark text-light border-secondary">
+                                                            <div class="modal-header border-secondary">
+                                                                <h5 class="modal-title">Deny Registration</h5>
+                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                            </div>
+                                                            <form asp-action="DenyRegistration" method="post">
+                                                                <div class="modal-body">
+                                                                    <input type="hidden" name="registrationId" value="@item.RegistrationId" />
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Reason for Denial</label>
+                                                                        <textarea name="rejectionReason" class="form-control bg-black text-light border-secondary" rows="3" required placeholder="e.g. Overweight for this category"></textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer border-secondary">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-danger">Confirm Deny</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                catIndex++;
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- jsPDF and AutoTable for Text Extraction PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape'); // Use landscape for more columns
+            
+            // Document Title
+            doc.setFontSize(22);
+            doc.setTextColor(20, 20, 20);
+            doc.text("AKHADA Tournament Participants", 14, 20);
+            
+            // Subtitle
+            doc.setFontSize(14);
+            doc.setTextColor(100, 100, 100);
+            doc.text("Tournament: @Html.Raw(tournament?.Title)", 14, 28);
+            doc.text("Export Date: " + new Date().toLocaleDateString(), 14, 34);
+
+            // Fetch data from Model via JSON
+            var exportData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(m => new {
+                Category = m.GymSubcategory?.GymCategory?.Gym_categoryName ?? "Uncategorized",
+                Subcat = m.GymSubcategory?.SubcategoryName ?? "General",
+                MemberName = m.GymMember?.FullName,
+                Phone = m.GymMember?.MobileNumber,
+                Age = m.GymMember?.Age?.ToString() ?? "N/A",
+                Weight = m.GymMember?.WeightKg?.ToString() ?? "N/A",
+                Status = m.Status,
+                RegDate = m.RegistrationDate.ToString("dd MMM yyyy")
+            })));
+
+            // Map data to table rows
+            var tableBody = exportData.map(function(row) {
+                return [
+                    row.Category + "\n" + row.Subcat, 
+                    row.MemberName, 
+                    row.Phone, 
+                    row.Age, 
+                    row.Weight + " kg", 
+                    row.RegDate,
+                    row.Status
+                ];
+            });
+
+            // Generate Table
+            doc.autoTable({
+                startY: 42,
+                head: [['Category / Class', 'Member Name', 'Phone No.', 'Age', 'Weight', 'Date of Reg.', 'Status']],
+                body: tableBody,
+                theme: 'grid',
+                styles: { fontSize: 10, cellPadding: 3, textColor: 20 },
+                headStyles: { fillColor: [40, 40, 40], textColor: 255 },
+                alternateRowStyles: { fillColor: [245, 245, 245] },
+                didDrawPage: function (data) {
+                    // Huge Watermark Text across the page
+                    doc.setTextColor(230, 230, 230);
+                    doc.setFontSize(100);
+                    doc.text("AKHADA", 50, 140, { angle: 30 });
+                    doc.setTextColor(0,0,0); // reset color
+                }
+            });
+
+            // Trigger file download
+            doc.save('Akhada_Tournament_Registrations.pdf');
+        }
+    </script>
+}

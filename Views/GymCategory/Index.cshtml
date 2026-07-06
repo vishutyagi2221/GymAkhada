@@ -1,0 +1,102 @@
+@model IEnumerable<GymAkhada.Models.GymCategory>
+
+@{
+    ViewData["Title"] = "AKHADA Categories";
+}
+
+<div class="container mt-4">
+    <section class="master-hero">
+        <div>
+            <span class="master-eyebrow">Master Setup</span>
+            <h1>AKHADA category Master</h1>
+            <p>Maintain age or category ranges used for AKHADA registrations and rules.</p>
+        </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-warning fw-semibold">Add New Category</a>
+        }
+    </section>
+
+    <section class="master-panel">
+        <div class="master-panel-header">
+            <div>
+                <h2>Saved Categories</h2>
+                <p>@Model.Count() record(s) available</p>
+            </div>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (!Model.Any())
+        {
+            <div class="master-empty">
+                <h3>No categories added yet</h3>
+                <p>Start by adding the first category range, for example 15-21.</p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Create" class="btn btn-outline-warning">Create First Category</a>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.Gym_categoryName)</th>
+                            <th>@Html.DisplayNameFor(model => model.Gym_Remarks)</th>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <th>Actions</th>
+                            }
+                            else
+                            {
+                                <th>Participate</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                @foreach (var item in Model) {
+                        <tr>
+                            <td><span class="category-pill">@Html.DisplayFor(modelItem => item.Gym_categoryName)</span></td>
+                            <td>@Html.DisplayFor(modelItem => item.Gym_Remarks)</td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td>
+                                    <form asp-action="Delete" asp-route-id="@item.Gym_ID" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>
+                                    <a asp-controller="MemberPortal" asp-action="Index" class="btn btn-sm btn-warning fw-bold">
+                                        <i class="bi bi-trophy-fill"></i> Participate in Tournaments
+                                    </a>
+                                </td>
+                            }
+                        </tr>
+                }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>

@@ -1,0 +1,68 @@
+@model GymAkhada.Models.Tournament
+
+@{
+    ViewData["Title"] = "Edit Tournament";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h2>🏆 Edit Tournament</h2>
+    <hr />
+
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit" method="post" class="bg-dark p-4 rounded border border-secondary">
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-bold text-warning"></label>
+                    <input asp-for="Title" class="form-control bg-dark text-white border-secondary" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Date" class="form-label fw-bold text-warning"></label>
+                    <input asp-for="Date" class="form-control bg-dark text-white border-secondary" type="datetime-local" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Location" class="form-label text-warning">Location / Address</label>
+                    <input asp-for="Location" class="form-control bg-dark text-light border-secondary" />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="GoldPrize" class="form-label text-warning">🥇 Gold Prize (₹)</label>
+                        <input asp-for="GoldPrize" type="number" step="0.01" class="form-control bg-dark text-light border-warning" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="SilverPrize" class="form-label text-secondary">🥈 Silver Prize (₹)</label>
+                        <input asp-for="SilverPrize" type="number" step="0.01" class="form-control bg-dark text-light border-secondary" />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="BronzePrize" class="form-label text-danger">🥉 Bronze Prize (₹)</label>
+                        <input asp-for="BronzePrize" type="number" step="0.01" class="form-control bg-dark text-light border-danger" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label fw-bold text-warning"></label>
+                    <textarea asp-for="Description" class="form-control bg-dark text-white border-secondary" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-warning fw-bold">Save Changes</button>
+                    <a asp-action="Index" class="btn btn-outline-light">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
