@@ -45,10 +45,6 @@ A modern, responsive, and robust Gym and Tournament Management web application b
     dotnet run
     ```
 
-5.  **Default Admin Login**
-    *   Username: `admin`
-    *   Password: `admin123`
-
 ## Author 👨‍🎓
 **ANSH**
 *Developed as a Major Academic Project.*
