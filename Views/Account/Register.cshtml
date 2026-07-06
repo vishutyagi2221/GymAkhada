@@ -58,7 +58,7 @@
             </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-lg text-white fw-bold" style="background: linear-gradient(to right, #ff416c, #ff4b2b); border: none; border-radius: 50px;">
+                <button type="button" onclick="confirmRegistration()" class="btn btn-lg text-white fw-bold" style="background: linear-gradient(to right, #ff416c, #ff4b2b); border: none; border-radius: 50px;">
                     Register Now
                 </button>
             </div>
@@ -74,11 +74,11 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.getElementById('registerForm').addEventListener('submit', function (e) {
-            e.preventDefault();
+        function confirmRegistration() {
+            var form = $('#registerForm');
             
             // Validate form before showing popup
-            if (!$(this).valid()) {
+            if (!form.valid()) {
                 return;
             }
 
@@ -112,9 +112,9 @@
                 cancelButtonText: 'Edit Details ✏️'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    this.submit();
+                    form[0].submit();
                 }
             });
-        });
+        }
     </script>
 }
